@@ -1,0 +1,140 @@
+<!-- nav tabs -->
+<div class="row">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="nav navbar-header">
+        <a href="" class="navbar-brand">
+          <span class="glyphicon glyphicon-th-large"></span>
+        </a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false">Results <span class="caret"></span>
+            </a>
+            <ul role="menu" class="dropdown-menu" ng-click="$event.stopPropagation()"> <!--stay open even though item is selected-->
+              <li ng-class="{active: selectedResult.indexOf(result) !== -1}" ng-repeat="result in resultList">
+                <a href="" ng-click="clickItem(result)">{{result}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li role="presentation" ng-if="getDate">
+            <a href="">
+              <span class="glyphicon glyphicon-time"></span> {{getDate | date: 'MM.dd.yyyy HH:mm:ss'}}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+<!-- alert message -->
+<div class="alert alert-info" role="alert" ng-if="alert">
+  <strong>Info</strong> {{alert}}
+</div>
+<div class="row" ng-if="execution">
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" ng-repeat="(key, value) in execution" ng-class="{active: isTabActive(key)}">
+      <a data-target="#{{key | spaceless}}" data-toggle="tab">{{key}}</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div role="tabpanel" ng-repeat="(key, value) in execution" class="tab-pane"
+         id="{{key | spaceless}}" ng-class="{active: isTabActive(key)}">
+      <!-- start of tab-panel -->
+      <div class="row placeholders">
+        <div class="col-xs-18 col-sm-12 placeholders">
+          <h4 class="text-primary">{{key}}</h4>
+        </div>
+        <div class="col-xs-6 col-sm-3">
+          <canvas id="donut" class="chart chart-doughnut" chart-data="chartParams[key].values"
+                  chart-labels="chartParams[key].labels" chart-colours="chartParams[key].colours"></canvas>
+        </div>
+        <div class="col-xs-12 col-sm-9">
+          <div class="progress">
+            <div class="progress-bar progress-bar-success"
+                 style="width: {{(execution[key].PASS.length / execution[key].total) * 100}}%">
+              <span>{{((execution[key].PASS.length / execution[key].total) * 100) | number:1}}%</span>
+            </div>
+            <div class="progress-bar progress-bar-danger"
+                 style="width: {{(execution[key].FAIL.length / execution[key].total) * 100}}%">
+              <span>{{((execution[key].FAIL.length / execution[key].total) * 100) | number:1}}%</span>
+            </div>
+            <div class="progress-bar progress-bar-warning"
+                 style="width: {{(execution[key].BLOCKED.length / execution[key].total) * 100}}%">
+              <span>{{((execution[key].BLOCKED.length / execution[key].total) * 100) | number:1}}%</span>
+            </div>
+          </div>
+          <div class="pull-left">
+            <a href="" class="label label-primary"
+               ng-if="execution[key].total > 0">TOTAL {{execution[key].total}}</a>
+            <a href="" class="label label-success"
+               ng-if="execution[key].PASS.length > 0">PASS {{execution[key].PASS.length}}</a>
+            <a href="" class="label label-danger"
+               ng-if="execution[key].FAIL.length > 0">FAIL {{execution[key].FAIL.length}}</a>
+            <a href="" class="label label-warning"
+               ng-if="execution[key].BLOCKED.length > 0">BLOCKED {{execution[key].BLOCKED.length}}</a>
+            <a href="" class="label label-default"
+               ng-if="execution[key].total - (execution[key].BLOCKED.length + execution[key].PASS.length + execution[key].FAIL.length)">Unexecuted {{execution[key].total - (execution[key].BLOCKED.length + execution[key].PASS.length + execution[key].FAIL.length)}}</a>
+          </div>
+        </div>
+      </div>
+      <!-- List Test Cases -->
+      <table class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th width="80px;">Test Case</th>
+            <th>Summary</th>
+            <th>Result</th>
+            <th width="100px;">Executed By</th>
+            <th width="100px;">Executed On</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="(result, rows) in execution[key]">
+          <tr ng-repeat="row in execution[key][result]" ng-class="display(row.status)">
+            <td><a href="https://jira.prosper.com/browse/{{row.testcase.key}}" target="_blank">{{row.testcase.key}}</a></td>
+            <td>{{row.testcase.summary}}</td>
+            <td><span ng-class="setLabel(row.status)">{{row.status}}</span></td>
+            <td>{{row.executedBy.display_name}}</td>
+            <td>{{row.executedOn | timestamp}}</td>
+          </tr>
+          <!--
+          <tr ng-repeat="row in execution[key]">
+            <td>{{row}}</td>
+            <!--
+            <td><a href="https://jira.prosper.com/browse/{{row.testcase.key}}" target="_blank">{{row.testcase.key}}</a></td>
+            <td><span class="label label-success">{{row.status}}</span></td>
+            <td>{{row.executedBy.display_name}}</td>
+            <td>{{row.executedOn | timestamp}}</td>
+          </tr>
+          -->
+          <!--
+          <tr ng-repeat="row in execution[key].FAIL">
+            <td><a href="https://jira.prosper.com/browse/{{row.testcase}}" target="_blank">{{row.testcase}}</a></td>
+            <td><span class="label label-danger">{{row.status}}</span></td>
+            <td>{{row.executedBy.display_name}}</td>
+            <td>{{row.executedOn | timestamp}}</td>
+          </tr>
+          <tr ng-repeat="row in execution[key].BLOCKED">
+            <td><a href="https://jira.prosper.com/browse/{{row.testcase}}" target="_blank">{{row.testcase}}</a></td>
+            <td><span class="label label-warning">{{row.status}}</span></td>
+            <td>{{row.executedBy.display_name}}</td>
+            <td>{{row.executedOn | timestamp}}</td>
+          </tr>
+          <tr ng-repeat="row in execution[key].UNEXECUTED">
+            <td><a href="https://jira.prosper.com/browse/{{row.testcase}}" target="_blank">{{row.testcase}}</a></td>
+            <td><span class="label label-default">{{row.status}}</span></td>
+            <td>{{row.executedBy.display_name}}</td>
+            <td>{{row.executedOn | timestamp}}</td>
+          </tr>
+          -->
+        </tbody>
+      </table>
+      <!-- end of List Test Cases -->
+      <!-- end of tab-panel -->
+    </div>
+  </div>
+</div>

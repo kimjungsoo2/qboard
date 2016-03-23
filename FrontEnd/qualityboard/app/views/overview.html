@@ -1,0 +1,558 @@
+<!-- nav tabs -->
+<div class="row">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="nav navbar-header">
+        <a href="" class="navbar-brand" ng-click="getData(release)">
+          <span class="glyphicon glyphicon-th-large"></span>
+        </a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+               aria-expanded="false">Status <span class="caret"></span>
+            </a>
+            <ul role="menu" class="dropdown-menu" ng-click="$event.stopPropagation()"> <!--stay open even though item is selected-->
+              <li ng-class="{active: selectedStatus.indexOf(status) !== -1}" ng-repeat="status in statusList">
+                <a href="" ng-click="clickItem(status)">{{status}}</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li role="presentation" ng-if="getDate">
+            <a href="">
+              <span class="glyphicon glyphicon-time"></span> {{getDate | date: 'MM.dd.yyyy HH:mm:ss'}}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+<!-- alert message -->
+<div class="alert alert-info" role="alert" ng-if="alert">
+  <strong>Info</strong> {{alert}}
+</div>
+<div class="row placeholders" ng-if="crlist">
+  <!-- Story status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-primary placeholders">
+        {{status.story.total}}
+      </h3>
+      <span class="text-muted">Story</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{
+                ((status.story.Verified.length + status.story.Closed.length + status.story.Accepted.length)
+                / status.story.total) * 100
+             }}%">
+          <span>
+            {{(((status.story.Verified.length + status.story.Closed.length + status.story.Accepted.length)
+            / status.story.total) * 100) | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{((status.story.Testing.length + status.story['In Progress'].length +
+             status.story['Code Review'].length +
+             status.story['Dev Complete'].length) / status.story.total) * 100}}%">
+          <span>{{((status.story.Testing.length + status.story['In Progress'].length +
+            status.story['Code Review'].length +
+            status.story['Dev Complete'].length) / status.story.total) * 100 | number:0}}%
+          </span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.story.Closed.length > 0"
+           ng-click="showOnly(status.story.Closed, 'story')">Closed {{status.story.Closed.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.story.Accepted.length > 0"
+           ng-click="showOnly(status.story.Accepted, 'story')">Accepted {{status.story.Accepted.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.story.Verified.length > 0"
+           ng-click="showOnly(status.story.Verified, 'story')">Verified {{status.story.Verified.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.story.Testing.length > 0"
+           ng-click="showOnly(status.story.Testing, 'story')">Testing {{status.story.Testing.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.story['Dev Complete'].length > 0"
+           ng-click="showOnly(status.story['Dev Complete'], 'story')">Dev Complete {{status.story['Dev Complete'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.story['Code Review'].length > 0"
+           ng-click="showOnly(status.story['Code Review'], 'story')">Code Review {{status.story['Code Review'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.story['In Progress'].length > 0"
+           ng-click="showOnly(status.story['In Progress'], 'story')">In Progress {{status.story['In Progress'].length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.story.Open.length > 0"
+           ng-click="showOnly(status.story.Open, 'story')">Open {{status.story.Open.length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Production Bug Status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-danger placeholders">
+        {{status.bug.total}}
+      </h3>
+      <span class="text-muted">Production Bug</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{
+                ((status.bug.Verified.length + status.bug.Closed.length + status.bug.Accepted.length)
+                / status.bug.total) * 100
+             }}%">
+          <span>
+            {{(((status.bug.Verified.length + status.bug.Closed.length + status.bug.Accepted.length)
+            / status.bug.total) * 100) | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{((status.bug.Testing.length + status.bug['In Progress'].length +
+             status.bug['Code Review'].length +
+             status.bug['Dev Complete'].length) / status.bug.total) * 100}}%">
+          <span>{{((status.bug.Testing.length + status.bug['In Progress'].length +
+            status.bug['Code Review'].length +
+            status.bug['Dev Complete'].length) / status.bug.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{((status.bug.Open.length + status.bug.Reopened.length) / status.bug.total) * 100}}%">
+          <span>{{((status.bug.Open.length + status.bug.Reopened.length) / status.bug.total) * 100 | number:0}}%</span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.bug.Closed.length > 0"
+           ng-click="showOnly(status.bug.Closed, 'bug')">Closed {{status.bug.Closed.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.bug.Accepted.length > 0"
+           ng-click="showOnly(status.bug.Accepted, 'bug')">Accepted {{status.bug.Accepted.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.bug.Verified.length > 0"
+           ng-click="showOnly(status.bug.Verified, 'bug')">Verified {{status.bug.Verified.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.bug.Testing.length > 0"
+           ng-click="showOnly(status.bug.Testing, 'bug')">Testing {{status.bug.Testing.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.bug['Dev Complete'].length > 0"
+           ng-click="showOnly(status.bug['Dev Complete'], 'bug')">Dev Complete {{status.bug['Dev Complete'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.bug['Code Review'].length > 0"
+           ng-click="showOnly(status.bug['Code Review'], 'bug')">Code Review {{status.bug['Code Review'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.bug['In Progress'].length > 0"
+           ng-click="showOnly(status.bug['In Progress'], 'bug')">In Progress {{status.bug['In Progress'].length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.bug.Open.length > 0"
+           ng-click="showOnly(status.bug.Open, 'bug')">Open {{status.bug.Open.length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.bug.Reopened.length > 0"
+           ng-click="showOnly(status.bug.Reopened, 'bug')">Reopened {{status.bug.Reopened.length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Defect Status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-warning placeholders">
+        {{status.defect.total}}
+      </h3>
+      <span class="text-muted">Defect</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{
+                ((status.defect.Verified.length + status.defect.Closed.length + status.defect.Accepted.length)
+                / status.defect.total) * 100
+             }}%">
+          <span>
+            {{(((status.defect.Verified.length + status.defect.Closed.length + status.defect.Accepted.length)
+            / status.defect.total) * 100) | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{((status.defect.Testing.length + status.defect['In Progress'].length +
+             status.defect['Code Review'].length +
+             status.defect['Dev Complete'].length) / status.defect.total) * 100}}%">
+          <span>{{((status.defect.Testing.length + status.defect['In Progress'].length +
+            status.defect['Code Review'].length +
+            status.defect['Dev Complete'].length) / status.defect.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{((status.defect.Open.length + status.defect.Reopened.length) /
+             status.defect.total) * 100}}%">
+          <span>{{((status.defect.Open.length + status.defect.Reopened.length) /
+            status.defect.total) * 100 | number:0}}%
+          </span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.defect.Closed.length > 0"
+           ng-click="showOnly(status.defect.Closed, 'defect')">Closed {{status.defect.Closed.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.defect.Accepted.length > 0"
+           ng-click="showOnly(status.defect.Accepted, 'defect')">Accepted {{status.defect.Accepted.length}}</a>
+        <a href="" class="label label-success"
+           ng-if="status.defect.Verified.length > 0"
+           ng-click="showOnly(status.defect.Verified, 'defect')">Verified {{status.defect.Verified.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.defect.Testing.length > 0"
+           ng-click="showOnly(status.defect.Testing, 'defect')">Testing {{status.defect.Testing.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.defect['Dev Complete'].length > 0"
+           ng-click="showOnly(status.defect['Dev Complete'], 'defect')">Dev Complete {{status.defect['Dev Complete'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.defect['Code Review'].length > 0"
+           ng-click="showOnly(status.defect['Code Review'], 'defect')">Code Review {{status.defect['Code Review'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.defect['In Progress'].length > 0"
+           ng-click="showOnly(status.defect['In Progress'], 'defect')">In Progress {{status.defect['In Progress'].length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.defect.Open.length > 0"
+           ng-click="showOnly(status.defect.Open, 'defect')">Open {{status.defect.Open.length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.defect.Reopened.length > 0"
+           ng-click="showOnly(status.defect.Reopened, 'defect')">Reopened {{status.defect.Reopened.length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Task Status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-success placeholders">
+        {{status.task.total}}
+      </h3>
+      <span class="text-muted">Task</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{((status.task.Done.length) / status.task.total) * 100}}%">
+          <span>{{(((status.task.Done.length) / status.task.total) * 100) | number:0}}%</span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{((status.task['In Progress'].length + status.task.Blocked.length) /
+                    status.task.total) * 100}}%">
+          <span>{{((status.task['In Progress'].length + status.task.Blocked.length) /
+                    status.task.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{((status.task['To Do'].length) / status.task.total) * 100}}%">
+          <span>{{((status.task['To Do'].length) / status.task.total) * 100 | number:0}}%</span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.task.Done.length > 0"
+           ng-click="showOnly(status.task.Done, 'task')">Done {{status.task.Done.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.task['In Progress'].length > 0"
+           ng-click="showOnly(status.task['In Progress'], 'task')">In Progress {{status.task['In Progress'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.task.Blocked.length > 0"
+           ng-click="showOnly(status.task.Blocked, 'task')">Blocked {{status.task.Blocked.length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.task['To Do'].length > 0"
+           ng-click="showOnly(status.task['To Do'], 'task')">To Do {{status.task['To Do'].length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Sub Task Status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-success placeholders">
+        {{status.subtask.total}}
+      </h3>
+      <span class="text-muted">Sub Task</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{(status.subtask.Done.length / status.subtask.total) * 100}}%">
+          <span>
+            {{((status.subtask.Done.length / status.subtask.total) * 100) | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{((status.subtask.Blocked.length + status.subtask['In Progress'].length) /
+             status.subtask.total) * 100}}%">
+          <span>{{((status.subtask.Blocked.length + status.subtask['In Progress'].length) /
+            status.subtask.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{(status.subtask['To Do'].length / status.subtask.total) * 100}}%">
+          <span>{{(status.subtask['To Do'].length / status.subtask.total) * 100 | number:0}}%</span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.subtask.Done.length > 0"
+           ng-click="showOnly(status.subtask.Done, 'subtask')">Done {{status.subtask.Done.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.subtask['In Progress'].length > 0"
+           ng-click="showOnly(status.subtask['In Progress'], 'subtask')">In Progress {{status.subtask['In Progress'].length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.subtask.Blocked.length > 0"
+           ng-click="showOnly(status.subtask.Blocked, 'subtask')">Blocked {{status.subtask.Blocked.length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.subtask['To Do'].length > 0"
+           ng-click="showOnly(status.subtask['To Do'], 'subtask')">To Do {{status.subtask['To Do'].length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Automation status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-info placeholders">
+        {{(status.test.Automated.length + status.test.Manual.length)}}
+      </h3>
+      <span class="text-muted">Automation</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-primary"
+             style="width: {{(status.test.Automated.length / (status.test.Automated.length + status.test.Manual.length)) * 100}}%">
+          <span>
+            {{(status.test.Automated.length / (status.test.Automated.length + status.test.Manual.length)) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-info"
+             style="width: {{(status.test.Manual.length / (status.test.Automated.length + status.test.Manual.length)) * 100}}%">
+          <span>
+            {{(status.test.Manual.length / (status.test.Automated.length + status.test.Manual.length)) * 100 | number:0}}%
+          </span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-primary"
+           ng-if="status.test.Automated.length > 0">Automated {{status.test.Automated.length}}</a>
+        <a href="" class="label label-info"
+           ng-if="status.test.Manual.length > 0">Manual {{status.test.Manual.length}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Execution status -->
+  <div class="row">
+    <div class="col-xs-6 col-sm-3 placeholder">
+      <h3 class="text-default placeholders">
+        {{status.result.total}}
+      </h3>
+      <span class="text-muted">Executions</span>
+    </div>
+    <div class="col-xs-12 col-sm-9 placeholder">
+      <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{(status.result.PASS.length / status.result.total) * 100}}%">
+          <span>
+            {{(status.result.PASS.length / status.result.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{(status.result.FAIL.length / status.result.total) * 100}}%">
+          <span>
+            {{(status.result.FAIL.length / status.result.total) * 100 | number:0}}%
+          </span>
+        </div>
+        <div class="progress-bar progress-bar-warning"
+             style="width: {{(status.result.BLOCKED.length / status.result.total) * 100}}%">
+          <span>
+            {{(status.result.BLOCKED.length / status.result.total) * 100 | number:0}}%
+          </span>
+        </div>
+      </div>
+      <div class="pull-left">
+        <a href="" class="label label-success"
+           ng-if="status.result.PASS.length > 0">Pass {{status.result.PASS.length}}</a>
+        <a href="" class="label label-danger"
+           ng-if="status.result.FAIL.length > 0">Fail {{status.result.FAIL.length}}</a>
+        <a href="" class="label label-warning"
+           ng-if="status.result.BLOCKED.length > 0">Blocked {{status.result.BLOCKED.length}}</a>
+        <a href="" class="label label-default"
+           ng-if="(status.result.total - (status.result.FAIL.length + status.result.PASS.length + status.result.BLOCKED.length)) > 0">
+          Unexecuted {{status.result.total - (status.result.FAIL.length + status.result.PASS.length + status.result.BLOCKED.length)}}</a>
+      </div>
+    </div>
+  </div>
+  <!-- Test Coverage -->
+  <div class="row">
+    <div class="col-md-3 placeholder">
+      <canvas class="chart chart-doughnut" chart-data=chartData.story.values chart-labels=chartData.story.labels
+              chart-colours=chartData.story.colours></canvas>
+      <span class="text-muted">Story Test Coverage</span>
+    </div>
+    <div class="col-md-3 placeholder">
+      <canvas class="chart chart-doughnut" chart-data=chartData.bug.values chart-labels=chartData.bug.labels
+              chart-colours=chartData.bug.colours></canvas>
+      <span class="text-muted">Production Bug Test Coverage</span>
+    </div>
+    <div class="col-md-3 placeholder">
+      <canvas class="chart chart-doughnut" chart-data=chartData.task.values chart-labels=chartData.task.labels
+              chart-colours=chartData.task.colours></canvas>
+      <span class="text-muted">Task Test Coverage</span>
+    </div>
+    <div class="col-md-3 placeholder">
+      <canvas class="chart chart-doughnut" chart-data=chartData.subtask.values chart-labels=chartData.subtask.labels
+              chart-colours=chartData.subtask.colours></canvas>
+      <span class="text-muted">Sub-Task Test Coverage</span>
+    </div>
+  </div>
+</div>
+<!-- content -->
+<div class="row placeholder" ng-if="orderedGroupList">
+  <div class="panel panel-default" ng-repeat="(category, list) in orderedGroupList">
+    <div class="panel-heading">
+      <h3 class="panel-title panel-title-default">{{category}}</h3>
+    </div>
+    <div class="panel-body">
+      <div class="row placeholders" ng-repeat="(issuetype, item) in list">
+        <div class="col-xs-6 col-sm-3 placeholder">
+          <h3 class="text-primary placeholders">
+            {{item.Total}}
+          </h3>
+          <span class="text-muted">{{issuetype}}</span>
+        </div>
+        <div class="col-xs-12 col-sm-9 placeholder">
+          <div class="progress">
+            <div class="progress-bar progress-bar-danger"
+                 style="width: {{((item.Open.length + item.Reopened.length) / item.Total) * 100}}%">
+              <span>{{item.Open.length + item.Reopened.length}}</span>
+            </div>
+          </div>
+          <div class="pull-left">
+            <a href="" class="label label-default"
+               ng-repeat="(status, list) in item" ng-if="status != 'Total'">{{status}} {{list.length}}</a>
+            <a href="" class="label label-success">Closed {{status.story.Closed.length}}</a>
+          </div>
+        </div>
+      <!--
+      <table class="table table-hover table-condensed">
+        <tbody>
+          <tr ng-repeat="item in list">
+            <td>{{item}}</td>
+          </tr>
+        </tbody>
+      </table>
+      -->
+    </div>
+  </div>
+</div>
+<div class="row placeholder" ng-if="crlist">
+  <div class="panel panel-default" ng-repeat="(type, value) in crlist">
+    <div class="panel-heading">
+      <h3 ng-class="setPanelTitle(type)">{{type | issuetype}}</h3>
+    </div>
+    <div class="panel-body">
+      <table class="table table-hover table-condensed" ng-if="(value | keys).length > 0">
+        <thead>
+          <tr>
+            <th class="col-md-1">Key</th>
+            <th>Priority</th>
+            <th>Summary</th>
+            <th class="col-sm-1">Status</th>
+            <th class="col-sm-1">Assignee</th>
+            <th width="50px;">Test</th>
+            <th colspan="2">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, value) in crlist[type]" ng-class="display(value.status)">
+            <td><a href="https://jira.prosper.com/browse/{{key}}" target="_blank">{{key}}</a></td>
+            <td>{{value.priority}}</td>
+            <td>{{value.summary}}</td>
+            <td><span ng-class="setLabel(value.status)">{{value.status}}</span></td>
+            <td>{{value.assignee.display_name}}</td>
+            <td>
+              <span class="badge">{{value.tests.length}}</span>
+            </td>
+            <td width="200">
+              <div class="progress" ng-if="value.execlog.total > 0">
+                <div class="progress-bar progress-bar-success"
+                     style="width:{{(value.execlog.PASS / value.execlog.total) * 100 | number:0}}%">
+                  <span ng-if="value.execlog.PASS > 0">{{(value.execlog.PASS / value.execlog.total) * 100 | number:0}}%</span>
+                </div>
+                <div class="progress-bar progress-bar-danger"
+                     style="width:{{(value.execlog.FAIL / value.execlog.total) * 100 | number:0}}%">
+                  <span ng-if="value.execlog.FAIL > 0">{{(value.execlog.FAIL / value.execlog.total) * 100 | number:0}}%</span>
+                </div>
+                <div class="progress-bar progress-bar-warning"
+                     style="width:{{(value.execlog.BLOCKED / value.execlog.total) * 100 | number:0}}%">
+                  <span ng-if="value.execlog.BLOCKED > 0">{{(value.execlog.BLOCKED / value.execlog.total) * 100 | number:0}}%</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="dropdown" ng-if="(value.tests.length) > 0">
+                <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="dropdownMenu{{key}}"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu{{key}}">
+                  <li ng-repeat="test in value.tests">
+                    <a href="https://jira.prosper.com/browse/{{test.key}}" target="_blank">
+                      <span class="label" style="color:black;">{{test.key}}</span>
+                      <span class="label" style="color:black;font-weight:normal"> {{test.summary}}</span>
+                      <span ng-class="isAutomated(test.exectype)"></span>
+                    </a>
+                    <table class="table table-sm calculated-width">
+                      <tr ng-repeat="execution in executions[test.key]">
+                        <td class="col-md-1" ng-class="setTable(execution.status)">
+                          <a href="https://jira.prosper.com/secure/enav/#/{{execution.execId}}" target="_blank">
+                            <span class="label">{{execution.status}}</span>
+                          </a>
+                        </td>
+                        <td class="col-md-2">
+                          <span class="label" style="color:black;font-weight:normal;">{{execution.cycleName}}</span>
+                        </td>
+                        <td>
+                          <a ng-repeat="defect in execution.executionDefects"
+                             href="https://jira.prosper.com/browse/{{defect}}" target="_blank"
+                             style="margin-right:3px;">
+                            <span ng-class="setLabel(crlist.defect[defect].status)">
+                              {{defect}} ({{crlist.defect[defect].status | exists}})
+                            </span>
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </li>
+                  <!--
+                  <li>
+                    <a>
+                      <table class="table table-sm table-bordered">
+                        <tbody ng-repeat="test in value.tests">
+                          <tr ng-repeat="execution in executions[test.key]">
+                            <td>{{test.key}}</td>
+                            <td>{{test.summary}}</td>
+                            <td>{{execution.status}}</td>
+                            <td>{{execution.cycleName}}</td>
+                            <td ng-repeat="defect in execution.executionDefects">
+                              {{defect}} ({{crlist.defect[defect].status | exists}})
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </a>
+                  </li>
+                  -->
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

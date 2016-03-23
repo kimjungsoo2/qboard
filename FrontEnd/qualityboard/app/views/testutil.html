@@ -1,0 +1,71 @@
+<!-- nav tabs -->
+<div class="row">
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="presentation active">
+      <a data-target="#EmailVerByPass" data-toggle="tab">Email Verication By-pass</a>
+    </li>
+    <!--
+    <li class="presentation">
+      <a data-target="#Tool" data-toggle="tab">2nd Tool</a>
+    </li>
+    -->
+  </ul>
+  <!-- Email Verfication By-Pass tool -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="EmailVerByPass">
+      <div class="row" style="margin-top:30px;">
+        <div class="col-xs-18 col-sm-12 placeholder">
+          <form class="form-horizontal" name="requestForm" ng-submit="submit(request)">
+            <div class="form-group">
+              <label for="selectEnv" class="col-sm-2 control-label">Environment</label>
+              <div class="col-sm-6">
+                <select class="form-control" id="selectEnv" ng-model="request.env"
+                        ng-change="btnText='Check Verification Status'" required>
+                  <option value="qa20">QA20 (QA Environment)</option>
+                  <option value="qa32">QA32 (QA Environment)</option>
+                  <option value="stg">STG (Staging Environment)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" show-errors>
+              <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+              <div class="col-sm-10">
+                <input type="email" class="form-control" id="inputEmail" placeholder="Email" name="email"
+                       ng-model="request.email" ng-change="btnText='Check Verification Status'" required>
+                <p class="help-block" ng-if="requestForm.email.$error.required && requestForm.email.$touched">
+                  The email is missing
+                </p>
+                <p class="help-block" ng-if="requestForm.email.$error.email">
+                  The email address is invalid
+                </p>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default" name="btnSubmit">Check Verification Status</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="textareaResponse" class="col-sm-2 control-label">Response</label>
+              <div class="col-sm-10">
+                <textarea class="form-control" id="textareaResponse" readonly ng-model="textResp" rows="8"
+                          placeholder="Response are shown here..."></textarea>
+                <h3><a href="{{host}}{{accessToken}}" ng-if="host && accessToken" target="_blank">
+                  <span class="label label-info">Verify Email</span></a>
+                </h3>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!--
+    <div role="tabpanel" class="tab-pane" id="Tool">
+      <div class="row" style="margin-top:30px;">
+        <div class="col-xs-18 col-sm-12 placeholder">
+        </div>
+      </div>
+    </div>
+    -->
+  </div>
+</div>

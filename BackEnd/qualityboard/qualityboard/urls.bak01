@@ -1,0 +1,32 @@
+from django.conf.urls import patterns, include, url
+from rest_framework import routers
+from testboard import views
+
+router = routers.DefaultRouter()
+router.register(r'test', views.TestViewSet)
+router.register(r'creator', views.CreatorViewSet)
+router.register(r'fixversion', views.FixVersionViewSet)
+router.register(r'issuelink', views.IssueLinkViewSet)
+
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
+
+# urlpatterns = patterns('',
+# Examples:
+# url(r'^$', 'qualityboard.views.home', name='home'),
+# url(r'^qualityboard/', include('qualityboard.foo.urls')),
+
+# Uncomment the admin/doc line below to enable admin documentation:
+# url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+# Uncomment the next line to enable the admin:
+# url(r'^admin/', include(admin.site.urls)),
+# )
+
+
+urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^', include('testboard.urls')),
+]

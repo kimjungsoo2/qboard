@@ -1,0 +1,7 @@
+git+https://github.com/django-nonrel/django@1.5.5#egg=django
+
+django-cors-headers==1.1.0
+django-mongodb-engine==0.6.0
+djangorestframework==3.2.4
+djangotoolbox==1.8.0
+pymongo==3.0.3

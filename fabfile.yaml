@@ -1,0 +1,39 @@
+environment:
+  dev:
+      host: 'dev-qboard.c1.dev'
+      user: 'root'
+      password: '1'
+  live:
+      host: 'qboard.c1.dev'
+      user: 'root'
+      password: '1'
+
+target_directory: '/var/www'
+sync_exclusions:
+    - '.git'
+    - '.idea'
+    - '.tmp'
+    - 'env/*'
+    - 'bower_components'
+    - 'node_modules'
+    - 'test/*'
+    - 'src/*'
+
+path_to_backend_directory: 'qa-dashboard/BackEnd/qualityboard'
+path_to_frontend_directory: 'qa-dashboard/FrontEnd/qualityboard'
+
+number_of_jira_import_days: 1
+
+back_end_commands:
+#   TODO: the commented below need to run on new workspace; with no cached dependencies
+#    - 'pip install -r requirements.txt'
+
+front_end_commands:
+#   TODO: the commented below need to run on new workspace; with no cached dependencies
+#    - 'npm install'
+#    - 'npm install karma'
+#    - 'npm install grunt-karma'
+#    - 'npm install grunt-contrib-uglify'
+#    - 'npm install grunt-contrib-watch'
+#    - 'npm install -g bower'
+    - 'bower --allow-root install'
