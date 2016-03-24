@@ -310,7 +310,7 @@ angular
       $rootScope.orderedGroupList = {};
 
       angular.forEach(data, function(obj) {
-        var categorylist = [''];
+        var categorylist = [];
 
         if (Array.isArray(obj[category])) {
           angular.forEach(obj[category], function(v) {
@@ -385,7 +385,7 @@ angular
         }).then(function successCallback(response) {
           if (response.data.length > 0) {
             // group by Epic
-            $scope.groupData(response.data, 'components');
+            $scope.groupData(response.data, 'priority');
           }
         });
       }
